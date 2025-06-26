@@ -31,4 +31,7 @@ Thumbs.db
 .gitignore
 
 # Logs
-*.log 
+*.log
+
+# Generator icon Laravel project
+generator-icon/ 

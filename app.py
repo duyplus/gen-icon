@@ -5,16 +5,29 @@ import uuid
 import json
 import zipfile
 import shutil
+import logging
+import sys
 from datetime import datetime
 from PIL import Image, ImageOps
 import io
 import xml.etree.ElementTree as ET
 from PIL.PngImagePlugin import PngInfo
 
+# Production configuration
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB max file size
 app.config['UPLOAD_FOLDER'] = 'temp'
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'fallback-secret-key-for-development')
+
+# Production logging
+if not app.debug:
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s %(levelname)s: %(message)s',
+        handlers=[logging.StreamHandler(sys.stdout)]
+    )
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('🚀 Favicon Generator Production Mode Started')
 
 # Tạo thư mục temp nếu chưa tồn tại
 if not os.path.exists('temp'):
@@ -325,6 +338,15 @@ def cleanup_directory(directory):
     if os.path.exists(directory):
         shutil.rmtree(directory)
 
+@app.route('/health')
+def health_check():
+    """Health check endpoint cho Railway"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'service': 'favicon-generator'
+    }), 200
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -332,8 +354,11 @@ def index():
 @app.route('/generate', methods=['POST'])
 def generate():
     try:
+        app.logger.info(f'New favicon generation request from {request.remote_addr}')
+        
         # Kiểm tra file upload
         if 'image' not in request.files:
+            app.logger.warning('No file uploaded')
             return jsonify({'success': False, 'message': 'Không có file được tải lên'}), 400
         
         file = request.files['image']

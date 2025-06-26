@@ -76,19 +76,51 @@ python app.py
 
 ### Local Development
 ```bash
+# Windows
 .\venv\Scripts\Activate.ps1
-```
-```bash
+
+# macOS/Linux
+source venv/bin/activate
+
+# Chạy ứng dụng
 python app.py
 ```
 
-### Production với Gunicorn
-```bash
-# Cài đặt Gunicorn
-pip install gunicorn
+### Railway (Production - Khuyến nghị)
+Railway là platform PaaS tuyệt vời để deploy Flask apps:
 
-# Chạy với Gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 app:app
+1. **Commit code lên Git:**
+```bash
+git add .
+git commit -m "Deploy to Railway"
+git push origin main
+```
+
+2. **Deploy trên Railway:**
+   - Truy cập: https://railway.app
+   - Connect GitHub repository
+   - Chọn project folder
+   - Set environment variables:
+     ```
+     SECRET_KEY=your-super-secret-key-here
+     ```
+
+3. **Railway sẽ tự động:**
+   - ✅ Detect Python app
+   - ✅ Install dependencies từ `requirements.txt`
+   - ✅ Chạy với Gunicorn production server
+   - ✅ Assign domain và SSL certificate
+
+### Production với Gunicorn (VPS/Server)
+```bash
+# Cài đặt dependencies
+pip install -r requirements.txt
+
+# Chạy production server
+python run.py
+
+# Hoặc trực tiếp với Gunicorn
+gunicorn --bind 0.0.0.0:5000 app:app
 ```
 
 ### Docker
@@ -97,12 +129,12 @@ FROM python:3.9-slim
 
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 EXPOSE 5000
 
-CMD ["python", "app.py"]
+CMD ["python", "run.py"]
 ```
 
 ## 🎨 Tính năng nổi bật
