@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favicon Generator</title>
+    <meta name="keywords" content="favicon generator, app icons, web icons, android icons, ios icons, microsoft icons, python favicon">
+    <meta name="description" content="Tạo favicon và app icons từ hình ảnh của bạn bằng Python. Hỗ trợ Web, Android, iOS và Microsoft apps.">
+    <meta name="author" content="Favicon Generator">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 30%,#f093fb 70%,#f5576c 100%);min-height:100vh;max-height:100vh;overflow:hidden}
+        a,a:hover{text-decoration:none}
+        .main-container{width:100vw;height:100vh;display:grid;grid-template-columns:1fr 1.2fr 1fr;grid-template-rows:auto 1fr;gap:0}
+        .header-section{grid-column:1 / -1;background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);padding:1rem 2rem 1.5rem;text-align:center;position:relative;overflow:hidden}
+        .header-section::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');opacity:.3}
+        .header-content{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;margin:0 auto}
+        .header-title{display:flex;align-items:center;gap:1rem}
+        .header-section h1{font-size:1.5rem;font-weight:800;color:#fff;margin:0;letter-spacing:-.02em;text-shadow:0 2px 4px rgba(0,0,0,0.3)}
+        .python-badge{background:linear-gradient(135deg,#306998 0%,#ffd43b 100%);color:#fff;padding:.3rem .6rem;border-radius:8px;font-size:.8rem;font-weight:600;margin-left:1rem}
+        .platform-badges{display:flex;gap:.8rem}
+        .platform-badge{background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:.4rem .8rem;color:#fff;font-size:.8rem;font-weight:500;transition:all .3s ease}
+        .platform-badge:hover{background:rgba(255,255,255,0.25);transform:translateY(-2px)}
+        .left-panel{background:linear-gradient(135deg,#f8faff 0%,#fff 100%);padding:2rem;display:block;position:relative;border-right:1px solid #e2e8f0}
+        .upload-section{max-width:100%}
+        .section-title{font-size:1.4rem;font-weight:600;color:#1a202c;margin-bottom:.8rem;letter-spacing:-.02em}
+        .section-subtitle{font-size:.95rem;color:#64748b;margin-bottom:2rem;line-height:1.5}
+        .upload-area{border:2px dashed #cbd5e1;border-radius:16px;padding:1.5rem;text-align:center;background:linear-gradient(135deg,#f1f5f9 0%,#e2e8f0 100%);transition:all .4s cubic-bezier(0.25,0.8,0.25,1);cursor:pointer;margin-bottom:1.5rem;position:relative;overflow:hidden}
+        .upload-area:hover{border-color:#667eea;background:linear-gradient(135deg,#e0e7ff 0%,#c7d2fe 100%);transform:translateY(-2px);box-shadow:0 8px 25px rgba(102,126,234,0.15)}
+        .upload-area.dragover{border-color:#10b981;background:linear-gradient(135deg,#d1fae5 0%,#a7f3d0 100%)}
+        .upload-icon{font-size:2.5rem;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:float 3s ease-in-out infinite}
+        @keyframes float {
+            0%,100%{transform:translateY(0px)}
+            50%{transform:translateY(-8px)}
+        }
+        .upload-text{font-size:1rem;font-weight:500;color:#1a202c;margin-bottom:.3rem}
+        .upload-subtext{color:#64748b;font-size:.85rem}
+        .preview-area{display:none;text-align:center;padding:1.5rem;background:linear-gradient(135deg,#f8faff 0%,#f1f5f9 100%);border-radius:16px;border:1px solid #e2e8f0;margin-bottom:1.5rem}
+        .preview-image{max-width:120px;max-height:120px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+        .options-section{background:linear-gradient(135deg,#f8faff 0%,#f1f5f9 100%);padding:1.5rem;border-radius:16px;margin-bottom:1.5rem;border:1px solid #e2e8f0}
+        .option-item{display:flex;align-items:center;padding:.5rem 1rem;background:#fff;border-radius:10px;margin-bottom:.5rem;transition:all .3s ease;border:1px solid #e2e8f0}
+        .option-item:last-child{margin-bottom:0}
+        .option-item:hover{background:#f8faff;border-color:#667eea;transform:translateX(4px)}
+        .custom-checkbox{width:16px;height:16px;accent-color:#667eea;margin-right:.8rem}
+        .custom-radio{width:16px;height:16px;accent-color:#667eea;margin-right:.8rem}
+        .option-label{font-size:.85rem;font-weight:500;color:#1a202c}
+        .generate-btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border:none;padding:1rem 2rem;font-size:1rem;font-weight:600;border-radius:12px;color:#fff;width:100%;transition:all .4s cubic-bezier(0.25,0.8,0.25,1);position:relative;overflow:hidden;letter-spacing:.3px;cursor:pointer}
+        .generate-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transition:left .6s ease}
+        .generate-btn:hover::before{left:100%}
+        .generate-btn:hover{transform:translateY(-3px);box-shadow:0 12px 25px rgba(102,126,234,0.4)}
+        .generate-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        .middle-panel{background:linear-gradient(135deg,#f1f5f9 0%,#e2e8f0 100%);padding:2rem;display:flex;flex-direction:column;justify-content:flex-start;position:relative;border-right:1px solid #e2e8f0}
+        .info-container{max-width:100%}
+        .info-title{font-size:1.4rem;font-weight:600;color:#1a202c;margin-bottom:1.5rem;letter-spacing:-.02em}
+        .size-preview{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem}
+        .size-item{background:#fff;padding:1.2rem;border-radius:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.08);transition:all .3s ease;border:1px solid #e2e8f0}
+        .size-item:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.12)}
+        .size-name{font-weight:600;color:#1a202c;margin-bottom:.4rem;font-size:.95rem}
+        .size-dimension{color:#64748b;font-size:.8rem}
+        .guide-card{background:#fff;padding:1.5rem;border-radius:16px;box-shadow:0 2px 10px rgba(0,0,0,0.08);border:1px solid #e2e8f0}
+        .guide-header{display:flex;align-items:center;gap:1rem;margin-bottom:.8rem}
+        .guide-icon{font-size:1.5rem;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .guide-title{font-size:1rem;font-weight:600;color:#1a202c}
+        .guide-description{color:#64748b;line-height:1.5;font-size:.9rem;margin-bottom:.8rem}
+        .guide-code{background:#f8f9fa;padding:.8rem;border-radius:8px;font-size:.8rem;overflow-x:auto;border:1px solid #e2e8f0}
+        .guide-code code{color:#e83e8c;font-family:'Courier New',monospace}
+        .right-panel{background:linear-gradient(135deg,#fff 0%,#f8faff 100%);padding:2rem;display:block;position:relative}
+        .feature-container{max-width:100%}
+        .feature-title{font-size:1.4rem;font-weight:600;color:#1a202c;margin-bottom:1.5rem;letter-spacing:-.02em}
+        .feature-grid{display:grid;gap:1.2rem;margin-bottom:2rem}
+        .feature-card{background:#fff;padding:1.5rem;border-radius:16px;box-shadow:0 2px 10px rgba(0,0,0,0.08);transition:all .3s ease;border:1px solid #e2e8f0}
+        .feature-card:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,0.12);border-color:#667eea}
+        .feature-header{display:flex;align-items:center;gap:1rem;margin-bottom:.8rem}
+        .feature-icon{font-size:1.8rem;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .feature-title-text{font-size:1.1rem;font-weight:600;color:#1a202c}
+        .feature-description{color:#64748b;line-height:1.5;font-size:.9rem}
+        .loading{display:none;text-align:center;padding:1rem}
+        .spinner{width:40px;height:40px;border:3px solid #e2e8f0;border-top:3px solid #667eea;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1.5rem}
+        @keyframes spin {
+            0%{transform:rotate(0deg)}
+            100%{transform:rotate(360deg)}
+        }
+        .loading h3{color:#1a202c;font-weight:600;margin-bottom:.8rem;font-size:1rem}
+        .loading p{color:#64748b;font-size:.9rem}
+        .success-result{display:none;text-align:center;padding:2rem;background:linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%);border-radius:20px;border:1px solid #a7f3d0}
+        .success-result h3{color:#10b981;margin-bottom:1rem;font-size:1.4rem}
+        .download-btn{background:linear-gradient(135deg,#10b981 0%,#059669 100%);border:none;padding:1rem 2rem;font-size:1rem;font-weight:600;border-radius:12px;color:#fff;text-decoration:none;display:inline-block;transition:all .4s ease;margin-bottom:1rem}
+        .download-btn:hover{transform:translateY(-3px);box-shadow:0 12px 25px rgba(16,185,129,0.4);color:#fff;text-decoration:none}
+        .btn-outline-secondary{background:transparent;border:2px solid #64748b;color:#64748b;padding:.6rem 1.5rem;border-radius:10px;font-weight:500;transition:all .3s ease;cursor:pointer}
+        .btn-outline-secondary:hover{background:#64748b;color:#fff}
+        .d-none{display:none!important}
+        @media (max-width: 1400px) {
+            .main-container{grid-template-columns:1fr;grid-template-rows:auto 1fr 1fr 1fr}
+            .left-panel,.middle-panel,.right-panel{padding:1.5rem}
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header-section">
+            <div class="header-content">
+                <div class="header-title">
+                    <h1><i class="fas fa-palette"></i> Favicon Generator</h1>
+                </div>
+                <div class="platform-badges">
+                    <div class="platform-badge"><i class="fab fa-chrome"></i> Web</div>
+                    <div class="platform-badge"><i class="fab fa-android"></i> Android</div>
+                    <div class="platform-badge"><i class="fab fa-apple"></i> iOS</div>
+                    <div class="platform-badge"><i class="fab fa-microsoft"></i> Microsoft</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Left Panel - Upload -->
+        <div class="left-panel">
+            <div class="upload-section">
+                <h2 class="section-title">Tải lên hình ảnh</h2>
+                <p class="section-subtitle">Upload hình ảnh (PNG, JPG, GIF) và chuyển đổi thành favicon (.ico) và App Icons.</p>
+                
+                <form id="faviconForm" enctype="multipart/form-data">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="upload-text">Kéo thả hoặc chọn file</div>
+                        <div class="upload-subtext">PNG, JPG, GIF (max 10MB)</div>
+                        <input type="file" id="imageInput" name="image" accept="image/png,image/jpeg,image/jpg,image/gif" style="display: none;">
+                    </div>
+
+                    <div class="preview-area" id="previewArea">
+                        <div>
+                            <img id="previewImage" class="preview-image" alt="Preview">
+                        </div>
+                        <button type="button" class="btn-outline-secondary" onclick="removeImage()">
+                            <i class="fas fa-trash"></i> Xóa
+                        </button>
+                    </div>
+
+                    <div class="options-section">
+                        <div class="option-item">
+                            <input type="radio" name="generation_type" value="full_set" class="custom-radio" id="fullSet" checked>
+                            <label for="fullSet" class="option-label">Tạo icon cho Web, Android, iOS và Microsoft</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="radio" name="generation_type" value="favicon_only" class="custom-radio" id="onlyFavicon">
+                            <label for="onlyFavicon" class="option-label">Chỉ tạo favicon.ico</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" name="maintain_dimensions" class="custom-checkbox" id="maintainDimensions" checked>
+                            <label for="maintainDimensions" class="option-label">Giữ tỷ lệ hình ảnh</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="generate-btn" id="generateBtn" disabled>
+                        <i class="fab fa-python"></i> Tạo ngay
+                    </button>
+                </form>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <h3>Đang xử lý...</h3>
+                    <p>Sử dụng Pillow để tạo icons</p>
+                </div>
+
+                <div class="success-result" id="successResult">
+                    <h3><i class="fas fa-check-circle"></i> Thành công!</h3>
+                    <a href="#" class="download-btn" id="downloadBtn">
+                        <i class="fas fa-download"></i> Tải Xuống
+                    </a>
+                    <br>
+                    <button type="button" class="btn-outline-secondary" onclick="resetForm()">
+                        <i class="fas fa-redo"></i> Tạo mới
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Panel - Size Preview -->
+        <div class="middle-panel">
+            <div class="info-container">
+                <h2 class="info-title">Kích thước</h2>
+                
+                <div class="size-preview" id="sizePreview">
+                    <div class="size-item">
+                        <div class="size-name">Web Favicon</div>
+                        <div class="size-dimension">16×16, 32×32, 96×96</div>
+                    </div>
+                    <div class="size-item">
+                        <div class="size-name">Android</div>
+                        <div class="size-dimension">36×36 → 192×192</div>
+                    </div>
+                    <div class="size-item">
+                        <div class="size-name">Apple Touch</div>
+                        <div class="size-dimension">40×40 → 1024×1024</div>
+                    </div>
+                    <div class="size-item">
+                        <div class="size-name">Microsoft</div>
+                        <div class="size-dimension">70×70 → 310×310</div>
+                    </div>
+                </div>
+
+                <div class="guide-card">
+                    <div class="guide-header">
+                        <div class="guide-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="guide-title">Hướng dẫn sử dụng</div>
+                    </div>
+                    <div class="guide-description">
+                        Sau khi tạo xong, tải về và đặt các file vào thư mục gốc website. 
+                        Thêm code vào &lt;head&gt; của HTML.
+                    </div>
+                    <div class="guide-code">
+                        <code>&lt;link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"&gt;<br>
+                        &lt;link rel="icon" href="/favicon.ico" type="image/x-icon"&gt;</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Features -->
+        <div class="right-panel">
+            <div class="feature-container">
+                <h2 class="feature-title">Tính năng Python</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-header">
+                            <div class="feature-icon">
+                                <i class="fab fa-python"></i>
+                            </div>
+                            <div class="feature-title-text">Python + Pillow</div>
+                        </div>
+                        <div class="feature-description">
+                            Sử dụng thư viện Pillow mạnh mẽ cho xử lý ảnh
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-header">
+                            <div class="feature-icon">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="feature-title-text">Flask Framework</div>
+                        </div>
+                        <div class="feature-description">
+                            Web framework nhẹ và linh hoạt của Python
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-header">
+                            <div class="feature-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="feature-title-text">Tùy chỉnh linh hoạt</div>
+                        </div>
+                        <div class="feature-description">
+                            Giữ tỷ lệ hoặc chỉ tạo favicon theo nhu cầu
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-header">
+                            <div class="feature-icon">
+                                <i class="fas fa-file-archive"></i>
+                            </div>
+                            <div class="feature-title-text">File hoàn chỉnh</div>
+                        </div>
+                        <div class="feature-description">
+                            Bao gồm manifest.json, browserconfig.xml
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script>
+        const notyf = new Notyf();
+        let currentFileId = null;
+
+        function validateFileType(file) {
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+            return allowedTypes.includes(file.type);
+        }
+
+        function updateSizePreview() {
+            const onlyFavicon = $('#onlyFavicon').is(':checked');
+            const $sizeItems = $('#sizePreview').find('.size-item');
+            if (onlyFavicon) {
+                $sizeItems.each(function (index) {
+                    if (index === 0) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+                $('#sizePreview').css('grid-template-columns', '1fr');
+            } else {
+                $sizeItems.show();
+                $('#sizePreview').css('grid-template-columns', '1fr 1fr');
+            }
+        }
+
+        function handleFileSelect() {
+            const file = $('#imageInput')[0].files[0];
+            if (file) {
+                if (!validateFileType(file)) {
+                    notyf.error('Chỉ cho phép file PNG, JPG, JPEG hoặc GIF!');
+                    $('#imageInput').val('');
+                    return;
+                }
+                if (file.size > 10 * 1024 * 1024) {
+                    notyf.error('File quá lớn! Vui lòng chọn file nhỏ hơn 10MB.');
+                    $('#imageInput').val('');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#previewImage').attr('src', e.target.result);
+                    $('#previewArea').show();
+                    $('#uploadArea').hide();
+                    $('#generateBtn').prop('disabled', false);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage() {
+            resetForm();
+        }
+
+        function resetForm() {
+            if (currentFileId && currentFileId !== 'download') {
+                $.ajax({
+                    url: `/cleanup/${currentFileId}`,
+                    method: 'DELETE'
+                });
+            }
+            currentFileId = null;
+            
+            $('#faviconForm')[0].reset();
+            $('#imageInput').val('');
+            $('#previewArea').hide();
+            $('#uploadArea').show();
+            $('#generateBtn').prop('disabled', true);
+            $('#fullSet').prop('checked', true);
+            $('#onlyFavicon').prop('checked', false);
+            $('#maintainDimensions').prop('checked', true);
+            $('#generateBtn').show();
+            $('.options-section').show();
+            $('#successResult').hide();
+            $('#loading').hide();
+            updateSizePreview();
+        }
+
+        $(document).ready(function () {
+            // Upload area click
+            $('#uploadArea').on('click', function (e) {
+                if (e.target === $('#imageInput')[0]) return;
+                e.preventDefault();
+                $('#imageInput')[0].click();
+            });
+
+            // File input change
+            $('#imageInput').on('change', handleFileSelect);
+
+            // Drag and drop
+            $('#uploadArea').on('dragover', function (e) {
+                e.preventDefault();
+                $(this).addClass('dragover');
+            });
+
+            $('#uploadArea').on('dragleave', function () {
+                $(this).removeClass('dragover');
+            });
+
+            $('#uploadArea').on('drop', function (e) {
+                e.preventDefault();
+                $(this).removeClass('dragover');
+                const files = e.originalEvent.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (!validateFileType(file)) {
+                        notyf.error('Chỉ cho phép file PNG, JPG, JPEG hoặc GIF!');
+                        return;
+                    }
+                    $('#imageInput')[0].files = files;
+                    handleFileSelect();
+                }
+            });
+
+            // Radio button change
+            $('input[name="generation_type"]').on('change', updateSizePreview);
+
+            // Form submission
+            $('#faviconForm').on('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                
+                $('#generateBtn').hide();
+                $('#loading').show();
+
+                $.ajax({
+                    url: '/generate',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (result.success) {
+                            $('.options-section').hide();
+                            $('#generateBtn').hide();
+                            $('#loading').hide();
+                            
+                            const $downloadBtn = $('#downloadBtn');
+                            $downloadBtn.attr('href', result.download_url);
+                            
+                            const generationType = $('input[name="generation_type"]:checked').val();
+                            const urlParts = result.download_url.split('/');
+                            let cleanupTarget = null;
+                            
+                            if (urlParts.includes('direct')) {
+                                const directIndex = urlParts.indexOf('direct');
+                                cleanupTarget = urlParts[directIndex + 1];
+                            } else if (urlParts.includes('download')) {
+                                cleanupTarget = urlParts[urlParts.length - 1];
+                            }
+                            
+                            currentFileId = cleanupTarget;
+                            
+                            if (result.is_single_file || generationType === 'favicon_only') {
+                                $downloadBtn.attr('download', result.filename || 'favicon.ico');
+                                $downloadBtn.html('<i class="fas fa-download"></i> Tải favicon.ico');
+                            } else {
+                                $downloadBtn.attr('download', 'favicon-icons.zip');
+                                $downloadBtn.html('<i class="fas fa-download"></i> Tải ZIP');
+                            }
+                            
+                            $downloadBtn.off('click').on('click', function () {
+                                setTimeout(function () {
+                                    if (cleanupTarget && cleanupTarget !== 'download') {
+                                        $.ajax({
+                                            url: `/cleanup/${cleanupTarget}`,
+                                            method: 'DELETE'
+                                        });
+                                    }
+                                }, 1000);
+                            });
+                            
+                            $('#successResult').show();
+                            notyf.success('Tạo icons thành công!');
+                        }
+                    },
+                    error: function (xhr) {
+                        $('#generateBtn').show();
+                        $('#loading').hide();
+                        const response = xhr.responseJSON;
+                        const message = response ? response.message : 'Có lỗi xảy ra!';
+                        notyf.error(message);
+                    }
+                });
+            });
+
+            // Initialize
+            updateSizePreview();
+        });
+    </script>
+</body>
+</html> 
