@@ -383,6 +383,28 @@ def generate():
         original_extension = filename.rsplit('.', 1)[1].lower()
         original_path = os.path.join(temp_path, f'original.{original_extension}')
         file.save(original_path)
+
+        # Resize về 1024x1024 nếu chưa đúng kích thước
+        with Image.open(original_path) as img:
+            if img.width != 1024 or img.height != 1024:
+                # Resize giữ nguyên tỉ lệ, thêm nền trắng nếu cần
+                img = img.convert('RGBA')
+                img.thumbnail((1024, 1024), Image.Resampling.LANCZOS)
+                new_img = Image.new('RGBA', (1024, 1024), (255, 255, 255, 255))  # Nền trắng
+                x = (1024 - img.width) // 2
+                y = (1024 - img.height) // 2
+                new_img.paste(img, (x, y), img)
+                # Ghi đè lại file gốc đã upload
+                if original_extension in ['jpg', 'jpeg']:
+                    # Nếu là jpg thì chuyển về nền trắng
+                    background = Image.new('RGB', (1024, 1024), (255, 255, 255))
+                    background.paste(new_img, mask=new_img.split()[-1])
+                    background.save(original_path, format='JPEG', quality=90)
+                else:
+                    # Lưu PNG nhưng nền trắng, không trong suốt
+                    background = Image.new('RGB', (1024, 1024), (255, 255, 255))
+                    background.paste(new_img, mask=new_img.split()[-1])
+                    background.save(original_path, format='PNG', optimize=True, compress_level=9)
         
         # Lấy danh sách kích thước cần tạo
         sizes = get_icon_sizes(only_favicon, original_extension)
