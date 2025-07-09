@@ -128,20 +128,7 @@ def create_icons_from_image(image_path, sizes, temp_path, maintain_dimensions=Tr
                 img = img.convert('RGBA')
                 img.save(file_path, format='ICO', sizes=[(size, size)])
             else:
-                # Lưu với định dạng gốc và tối ưu hoá
-                if original_extension.lower() == 'png':
-                    # Tối ưu hoá PNG với mức nén cao nhất
-                    img.save(file_path, format='PNG', optimize=True, compress_level=9)
-                elif original_extension.lower() in ['jpg', 'jpeg']:
-                    # Chuyển về RGB cho JPEG
-                    if img.mode == 'RGBA':
-                        background = Image.new('RGB', img.size, (255, 255, 255))
-                        background.paste(img, mask=img.split()[-1])
-                        img = background
-                    # Tối ưu hoá JPEG với progressive loading
-                    img.save(file_path, format='JPEG', optimize=True, quality=90, progressive=True)
-                else:
-                    img.save(file_path, format='PNG', optimize=True, compress_level=9)
+                img.save(file_path, format='PNG')
                     
         except Exception as e:
             print(f"Lỗi khi tạo {filename}: {str(e)}")
@@ -175,18 +162,7 @@ def create_apple_icons_folder(image_path, temp_path, maintain_dimensions=True, o
             filename = f"{size}x{size}.{original_extension}"
             file_path = os.path.join(icons_path, filename)
             
-            if original_extension.lower() == 'png':
-                # Tối ưu hoá PNG với mức nén cao nhất
-                img.save(file_path, format='PNG', optimize=True, compress_level=9)
-            elif original_extension.lower() in ['jpg', 'jpeg']:
-                if img.mode == 'RGBA':
-                    background = Image.new('RGB', img.size, (255, 255, 255))
-                    background.paste(img, mask=img.split()[-1])
-                    img = background
-                # Tối ưu hoá JPEG với progressive loading
-                img.save(file_path, format='JPEG', optimize=True, quality=90, progressive=True)
-            else:
-                img.save(file_path, format='PNG', optimize=True, compress_level=9)
+            img.save(file_path, format='PNG')
                 
         except Exception as e:
             print(f"Lỗi khi tạo Apple icon {size}x{size}: {str(e)}")
@@ -228,97 +204,11 @@ def create_browserconfig(temp_path, extension='png'):
     with open(os.path.join(temp_path, 'browserconfig.xml'), 'w', encoding='utf-8') as f:
         f.write(browserconfig)
 
-def optimize_images(temp_path):
-    """Tối ưu hoá tất cả hình ảnh trong thư mục trước khi tạo ZIP"""
-    print("Đang tối ưu hoá hình ảnh...")
-    
-    for root, dirs, files in os.walk(temp_path):
-        for file in files:
-            if file.startswith('original.'):
-                continue  # Bỏ qua file gốc
-                
-            file_path = os.path.join(root, file)
-            file_extension = file.split('.')[-1].lower()
-            
-            try:
-                if file_extension in ['png']:
-                    optimize_png(file_path)
-                elif file_extension in ['jpg', 'jpeg']:
-                    optimize_jpeg(file_path)
-                elif file_extension == 'ico':
-                    optimize_ico(file_path)
-            except Exception as e:
-                print(f"Lỗi khi tối ưu hoá {file}: {str(e)}")
-                continue
-
-def optimize_png(file_path):
-    """Tối ưu hoá file PNG"""
-    try:
-        img = Image.open(file_path)
-        
-        # Loại bỏ metadata không cần thiết
-        img_copy = img.copy()
-        
-        # Chuyển đổi về P mode (palette) nếu có thể để giảm kích thước
-        if img_copy.mode == 'RGBA':
-            # Kiểm tra xem có pixel trong suốt không
-            alpha = img_copy.split()[-1]
-            if alpha.getbbox() is not None:
-                # Có transparency, giữ RGBA nhưng tối ưu hoá
-                img_copy.save(file_path, format='PNG', optimize=True, compress_level=9)
-            else:
-                # Không có transparency, chuyển về RGB
-                img_rgb = Image.new('RGB', img_copy.size, (255, 255, 255))
-                img_rgb.paste(img_copy, mask=img_copy.split()[-1] if img_copy.mode == 'RGBA' else None)
-                img_rgb.save(file_path, format='PNG', optimize=True, compress_level=9)
-        else:
-            img_copy.save(file_path, format='PNG', optimize=True, compress_level=9)
-        
-        img.close()
-        img_copy.close()
-    except Exception as e:
-        print(f"Lỗi tối ưu hoá PNG {file_path}: {str(e)}")
-
-def optimize_jpeg(file_path):
-    """Tối ưu hoá file JPEG"""
-    try:
-        img = Image.open(file_path)
-        
-        # Chuyển về RGB nếu cần
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
-        
-        # Lưu với chất lượng tối ưu và loại bỏ metadata
-        img.save(file_path, format='JPEG', quality=90, optimize=True, progressive=True)
-        img.close()
-    except Exception as e:
-        print(f"Lỗi tối ưu hoá JPEG {file_path}: {str(e)}")
-
-def optimize_ico(file_path):
-    """Tối ưu hoá file ICO"""
-    try:
-        img = Image.open(file_path)
-        
-        # ICO files are already quite optimized, but we can ensure proper format
-        if img.mode != 'RGBA':
-            img = img.convert('RGBA')
-        
-        # Lưu lại với tối ưu hoá
-        sizes = [(16, 16), (32, 32), (48, 48)]  # Kích thước tiêu chuẩn cho ICO
-        img.save(file_path, format='ICO', sizes=sizes)
-        img.close()
-    except Exception as e:
-        print(f"Lỗi tối ưu hoá ICO {file_path}: {str(e)}")
-
 def create_zip_file(temp_path, unique_id):
     """Tạo file ZIP chứa tất cả icons"""
-    # Tối ưu hoá hình ảnh trước khi tạo ZIP
-    optimize_images(temp_path)
-    
     zip_path = os.path.join('temp', f'favicon-{unique_id}.zip')
     
-    # Sử dụng mức nén cao nhất cho ZIP
-    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as zipf:
+    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for root, dirs, files in os.walk(temp_path):
             for file in files:
                 if file.startswith('original.'):
@@ -387,24 +277,9 @@ def generate():
         # Resize về 1024x1024 nếu chưa đúng kích thước
         with Image.open(original_path) as img:
             if img.width != 1024 or img.height != 1024:
-                # Resize giữ nguyên tỉ lệ, thêm nền trắng nếu cần
-                img = img.convert('RGBA')
-                img.thumbnail((1024, 1024), Image.Resampling.LANCZOS)
-                new_img = Image.new('RGBA', (1024, 1024), (255, 255, 255, 255))  # Nền trắng
-                x = (1024 - img.width) // 2
-                y = (1024 - img.height) // 2
-                new_img.paste(img, (x, y), img)
-                # Ghi đè lại file gốc đã upload
-                if original_extension in ['jpg', 'jpeg']:
-                    # Nếu là jpg thì chuyển về nền trắng
-                    background = Image.new('RGB', (1024, 1024), (255, 255, 255))
-                    background.paste(new_img, mask=new_img.split()[-1])
-                    background.save(original_path, format='JPEG', quality=90)
-                else:
-                    # Lưu PNG nhưng nền trắng, không trong suốt
-                    background = Image.new('RGB', (1024, 1024), (255, 255, 255))
-                    background.paste(new_img, mask=new_img.split()[-1])
-                    background.save(original_path, format='PNG', optimize=True, compress_level=9)
+                img = img.convert('RGB')
+                img = img.resize((1024, 1024), Image.Resampling.LANCZOS)
+                img.save(original_path, format='PNG')
         
         # Lấy danh sách kích thước cần tạo
         sizes = get_icon_sizes(only_favicon, original_extension)
@@ -416,8 +291,6 @@ def generate():
         if only_favicon:
             favicon_path = os.path.join(temp_path, 'favicon.ico')
             if os.path.exists(favicon_path):
-                # Tối ưu hoá favicon trước khi trả về
-                optimize_ico(favicon_path)
                 return jsonify({
                     'success': True,
                     'download_url': f'/direct/{unique_id}/favicon',
@@ -431,8 +304,7 @@ def generate():
             create_manifest(temp_path, original_extension)
             create_browserconfig(temp_path, original_extension)
         
-        # Tạo file ZIP với tối ưu hoá
-        print("Đang tạo file ZIP và tối ưu hoá hình ảnh...")
+        # Tạo file ZIP
         zip_path = create_zip_file(temp_path, unique_id)
         
         return jsonify({
@@ -499,4 +371,4 @@ def cleanup(file_id):
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(debug=False, host='0.0.0.0', port=port) 
+    app.run(debug=False, host='0.0.0.0', port=port)
