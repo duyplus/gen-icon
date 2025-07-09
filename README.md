@@ -2,6 +2,12 @@
 
 > Ứng dụng web tạo favicon và app icons từ hình ảnh bằng Python Flask và Pillow. Hỗ trợ đa nền tảng Web, Android, iOS và Microsoft.
 
+## ⚡ Platform as a Service
+
+- Fly.io - https://gen-icon.fly.dev
+- Render.com - https://gen-icon.onrender.com
+- Railway.com - https://gen-icon.up.railway.app
+
 ## ✨ Tính năng
 
 - 🐍 **Python + Flask:** Framework web nhẹ và mạnh mẽ
@@ -85,31 +91,6 @@ source venv/bin/activate
 # Chạy ứng dụng
 python app.py
 ```
-
-### Railway (Production - Khuyến nghị)
-Railway là platform PaaS tuyệt vời để deploy Flask apps:
-
-1. **Commit code lên Git:**
-```bash
-git add .
-git commit -m "Deploy to Railway"
-git push origin main
-```
-
-2. **Deploy trên Railway:**
-   - Truy cập: https://railway.app
-   - Connect GitHub repository
-   - Chọn project folder
-   - Set environment variables:
-     ```
-     SECRET_KEY=your-super-secret-key-here
-     ```
-
-3. **Railway sẽ tự động:**
-   - ✅ Detect Python app
-   - ✅ Install dependencies từ `requirements.txt`
-   - ✅ Chạy với Gunicorn production server
-   - ✅ Assign domain và SSL certificate
 
 ### Production với Gunicorn (VPS/Server)
 ```bash
