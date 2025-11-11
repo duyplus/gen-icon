@@ -29,10 +29,10 @@
 ## 🛠️ Tech Stack
 
 ### Backend
-- **Python:** 3.8+
-- **Framework:** Flask 2.3.3
-- **Image Processing:** Pillow 10.0.1
-- **File Upload:** Werkzeug 2.3.7
+- **Python:** 3.10+
+- **Framework:** Flask 3.1.2
+- **Image Processing:** Pillow 12.0.0
+- **File Upload:** Werkzeug 3.1.3
 
 ### Frontend  
 - **Template Engine:** Jinja2 (Flask)
@@ -43,7 +43,7 @@
 
 ## 📋 Yêu cầu hệ thống
 
-- Python 3.8+
+- Python 3.10+
 - pip package manager
 - 512MB RAM tối thiểu
 
@@ -82,7 +82,6 @@ python app.py
 ```bash
 # Windows
 .\venv\Scripts\Activate.ps1
-
 # macOS/Linux
 source venv/bin/activate
 
