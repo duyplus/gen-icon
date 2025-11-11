@@ -4,15 +4,14 @@
 
 ## ⚡ Platform as a Service
 
-- Fly.io - https://gen-icon.fly.dev
-- Render.com - https://gen-icon.onrender.com
-- Railway.com - https://gen-icon.up.railway.app
+- **Fly.io** - https://gen-icon.fly.dev
+- **Render.com** - https://gen-icon.onrender.com
 
 ## ✨ Tính năng
 
 - 🐍 **Python + Flask:** Framework web nhẹ và mạnh mẽ
 - 🖼️ **Pillow Processing:** Xử lý ảnh chuyên nghiệp với thư viện Pillow
-- 📦 **Upload đa định dạng:** Hỗ trợ PNG, JPG, JPEG, GIF (tối đa 10MB)
+- 📦 **Upload đa định dạng:** Hỗ trợ PNG, JPG, JPEG, GIF (tối đa 15MB)
 - 🎯 **Đa kích thước:** Tự động tạo hàng chục kích thước icon
 - 🔧 **Tùy chỉnh linh hoạt:**
   - Chỉ tạo favicon.ico
@@ -72,7 +71,6 @@ pip install -r requirements.txt
 ### Chạy ứng dụng
 
 ```bash
-# Chạy development server
 python app.py
 ```
 
@@ -106,7 +104,7 @@ gunicorn --bind 0.0.0.0:5000 app:app
 
 ### Docker
 ```dockerfile
-FROM python:3.9-slim
+FROM python:3.14-slim
 
 WORKDIR /app
 COPY requirements.txt .

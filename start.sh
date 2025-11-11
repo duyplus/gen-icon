@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Production startup script for Railway
+# Production startup script for Fly.io and Render.com
 echo "Starting production server with Gunicorn..."
 
 # Set default port if not provided

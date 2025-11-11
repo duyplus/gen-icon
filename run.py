@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Production runner for Railway deployment
+Production runner for Fly.io and Render.com deployment
 Sử dụng Gunicorn để chạy Flask app với cấu hình tối ưu
 """
 
